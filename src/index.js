@@ -85,9 +85,9 @@ export default function prepass(
 		) {
 			// stateless functional components
 			doRender = () => {
+				const previousSkipEffects = options[_skipEffects];
+				options[_skipEffects] = true;
 				try {
-					const previousSkipEffects = options[_skipEffects];
-					options[_skipEffects] = true;
 					// options.render was renamed to _render (mangled to __r)
 					if (options.render) options.render(vnode);
 					if (options.__r) {
@@ -97,7 +97,6 @@ export default function prepass(
 					const renderResult = Promise.resolve(
 						nodeName.call(vnode.__c, props, cctx)
 					);
-					options[_skipEffects] = previousSkipEffects;
 					return renderResult;
 
 				} catch (e) {
@@ -106,6 +105,8 @@ export default function prepass(
 					}
 
 					return Promise.reject(e);
+				} finally {
+					options[_skipEffects] = previousSkipEffects;
 				}
 			};
 		} else {
